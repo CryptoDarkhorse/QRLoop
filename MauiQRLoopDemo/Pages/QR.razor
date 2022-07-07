@@ -1,6 +1,5 @@
 ﻿@layout EmptyLayout
 @using Microsoft.Maui.ApplicationModel
-@using Microsoft.Maui.Storage
 
 @page "/qr"
 
@@ -32,20 +31,6 @@
         public int Height { get; set; }
     }
 
-    // save frames data to external storage
-    private async void SaveFramesDataToFile()
-    {
-        //// Grant external storage permission
-        //PermissionStatus status = await Permissions.RequestAsync<Permissions.StorageWrite>();
-
-        //if (status != PermissionStatus.Granted) return;
-
-        
-        //string path = "/storage/emulated/0/Documents/1.txt";
-
-        //await File.WriteAllLinesAsync(path, frames);
-    }
-
     protected override async void OnInitialized()
     {
         var sz = await JsRunTime.InvokeAsync<WindowsDimension>("MyLib.GetWindowSize");
@@ -57,8 +42,6 @@
 
         numFrames = frames.Length;
         cur = 0;
-
-        SaveFramesDataToFile();
 
         timer = new System.Threading.Timer((object? stateInfo) =>
         {

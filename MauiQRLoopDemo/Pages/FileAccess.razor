@@ -1,0 +1,64 @@
+﻿@page "/fileaccess"
+
+@using Microsoft.Maui.ApplicationModel;
+@using Microsoft.Maui.Storage;
+
+<h3>File system demo</h3>
+
+<div class="container">
+    <div class="row m-1">
+        <button class="btn btn-primary btn-block m-1" @onclick="@SaveToAppData">Save to App Data Directory</button>
+        <button class="btn btn-primary btn-block m-1" @onclick="@LoadFromAppData">Load from App Data Directory</button>
+        <button class="btn btn-primary btn-block m-1" @onclick="@SaveToExternal">Save to External Directory(Documents)</button>
+        <button class="btn btn-primary btn-block m-1" @onclick="@SaveToExternal">Load from External Directory(Documents)</button>
+    </div>
+
+    <div class="row m-1">
+        File Name:
+        <input type="text" @bind="@path" @oninput="@((e) => { path=(string)e.Value;})" />
+    </div>
+
+    <div class="row m-1">
+        <textarea @bind="@msg" style="height:300px" @oninput="@((e) => { msg=(string)e.Value;})" />
+    </div>
+</div>
+
+@code {
+    private string APP_DATA_DIRECTORY = FileSystem.Current.AppDataDirectory;
+    private string EXTERNAL_DOCUMENTS_DIRECTORY = "/storage/emulated/0/Documents";
+
+    private string msg = "";
+    private string path = "1.txt";
+
+    private async void SaveToExternal()
+    {
+        var status = await Permissions.RequestAsync<Permissions.StorageWrite>();
+
+        if (status != PermissionStatus.Granted) return;
+
+        File.WriteAllText(EXTERNAL_DOCUMENTS_DIRECTORY + "/" + path, msg);
+    }
+
+    private async void LoadFromExternal()
+    {
+        var status = await Permissions.RequestAsync<Permissions.StorageRead>();
+
+        if (status != PermissionStatus.Granted) return;
+
+        msg = File.ReadAllText(EXTERNAL_DOCUMENTS_DIRECTORY + "/" + path);
+
+        StateHasChanged();
+    }
+
+    private void SaveToAppData()
+    {
+        File.WriteAllText(APP_DATA_DIRECTORY + "/" + path, msg);
+    }
+
+    private void LoadFromAppData()
+    {
+        msg = File.ReadAllText(APP_DATA_DIRECTORY + "/" + path);
+
+        StateHasChanged();
+    }
+}
