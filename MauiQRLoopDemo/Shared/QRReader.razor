@@ -1,19 +1,11 @@
 ﻿@using BlazorZXingJs
+@using Microsoft.Maui.ApplicationModel
 
 @inject IJSRuntime JsRunTime
 @inject NavigationManager NavManager
 @inject AppState appState
 
 <style>
-    .box {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        bottom: 0px;
-        left: 0px;
-        width: 100%;
-        height: 100%;
-    }
 
     .progress {
         width: 100px;
@@ -140,6 +132,22 @@
     private double progress = 0;
     private string progressAngle1 = "0deg";
     private string progressAngle2 = "0deg";
+
+    private PermissionStatus status = PermissionStatus.Denied;
+
+    protected override async void OnInitialized()
+    {
+        base.OnInitialized();
+
+        // request camera permission
+        status = await Permissions.RequestAsync<Permissions.Camera>();
+
+        // if permission is not granted, redirect to main page
+        if (status != PermissionStatus.Granted)
+        {
+            NavManager.NavigateTo("/");
+        }
+    }
 
     private async void BarcodeRead(string code)
     {

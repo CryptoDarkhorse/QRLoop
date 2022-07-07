@@ -25,3 +25,10 @@ export function getFrameData(s) {
 export function getProgress(s) {
     return progressOfFrames(s);
 }
+
+export function getWindowSize() {
+    return {
+        Width: window.innerWidth,
+        Height: window.innerHeight
+    };
+};

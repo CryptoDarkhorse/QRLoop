@@ -1,0 +1,70 @@
+﻿@layout EmptyLayout
+@using Microsoft.Maui.ApplicationModel
+@using Microsoft.Maui.Storage
+
+@page "/qr"
+
+@using BlazorZXingJs
+
+@inject IJSRuntime JsRunTime
+@inject AppState appState
+
+<div class="row">
+    <p>Total Frames: @numFrames</p>
+</div>
+
+<div class="qr_code">
+    <QRCodeWriter Text="@CurrentFrame" Width="@dimension" Heigth="@dimension">
+    </QRCodeWriter>
+</div>
+
+
+@code {
+    private String CurrentFrame = "";
+    private String[] frames;
+    private int cur = 0;
+    private System.Threading.Timer? timer = null;
+    private int numFrames = 0;
+    private int dimension = 200;
+
+    class WindowsDimension {
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
+
+    // save frames data to external storage
+    private async void SaveFramesDataToFile()
+    {
+        //// Grant external storage permission
+        //PermissionStatus status = await Permissions.RequestAsync<Permissions.StorageWrite>();
+
+        //if (status != PermissionStatus.Granted) return;
+
+        
+        //string path = "/storage/emulated/0/Documents/1.txt";
+
+        //await File.WriteAllLinesAsync(path, frames);
+    }
+
+    protected override async void OnInitialized()
+    {
+        var sz = await JsRunTime.InvokeAsync<WindowsDimension>("MyLib.GetWindowSize");
+
+        dimension = Math.Min(sz.Width, sz.Height);
+        dimension = dimension * 8 / 10; // 80%
+
+        frames = await JsRunTime.InvokeAsync<string[]>("MyLib.GetFrames", new Object[] { appState.CapturedMessage, 120, 2 });
+
+        numFrames = frames.Length;
+        cur = 0;
+
+        SaveFramesDataToFile();
+
+        timer = new System.Threading.Timer((object? stateInfo) =>
+        {
+            CurrentFrame = frames[cur];
+            cur = (cur + 1) % frames.Length;
+            InvokeAsync(StateHasChanged);
+        }, new System.Threading.AutoResetEvent(false), 0, 300);
+    }
+}

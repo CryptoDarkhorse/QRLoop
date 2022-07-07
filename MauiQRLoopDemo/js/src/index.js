@@ -3,7 +3,8 @@
     parseFrames,
     isComplete,
     getFrameData,
-    getProgress
+    getProgress,
+    getWindowSize
 } from './my_lib';
 
 import { Buffer } from "buffer";
@@ -36,4 +37,8 @@ export function GetFrameData(s) {
 
 export function GetProgress(s) {
     return getProgress(s);
+}
+
+export function GetWindowSize() {
+    return getWindowSize();
 }
