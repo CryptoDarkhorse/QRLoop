@@ -1,0 +1,48 @@
+﻿@using BlazorZXingJs
+
+@inject IJSRuntime JsRunTime
+
+<h3>QRGenerator</h3>
+
+<div class="row m-1">
+<textarea @bind="@msg" style="height:300px" @oninput="@((e) => { msg=(string)e.Value;})" />
+</div>
+
+<div class="row m-1">
+<button class="btn btn-primary" @onclick="@GenerateQR">Generate QR Code</button>
+</div>
+
+<p>Total Frames: @numFrames</p>
+<QRCodeWriter Text="@CurrentFrame" Width="400" Heigth="400"></QRCodeWriter>
+
+@code
+{
+    private String msg = "";
+    private String CurrentFrame = "";
+    private String[] frames;
+    private int cur = 0;
+    private System.Threading.Timer? timer = null;
+    private int numFrames = 0;
+
+    async void GenerateQR()
+    {
+        if (timer != null)
+        {
+            await timer.DisposeAsync();
+            timer = null;
+        }
+
+        frames = await JsRunTime.InvokeAsync<string[]>("MyLib.GetFrames", new Object[] { msg, 120, 2 });
+
+        numFrames = frames.Length;
+        cur = 0;
+
+        timer = new System.Threading.Timer( (object? stateInfo) =>
+		{
+            CurrentFrame = frames[cur];
+            cur = (cur + 1) % frames.Length;
+            InvokeAsync(StateHasChanged);
+		}, new System.Threading.AutoResetEvent(false), 0, 300);
+
+    }
+}
